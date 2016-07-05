@@ -37,7 +37,7 @@ function create_post_type() {
         'public' => true,
         'has_archive' => true,
         'menu_position' => 20,
-        'supports' => array('thumbnail', 'revisions'),
+        'supports' => array('revisions'),
         'rewrite' => array('slug' => 'authors'),
             )
     );
@@ -135,26 +135,12 @@ $custom_meta_fields = array(
         'id'    => $prefix.'authors_image',
         'type'  => 'image'
     ),
-//    array(
-//        'label' => 'Gallery',
-//        'desc'  => '',
-//        'id'    => $prefix.'gallery',
-//        'type'  => 'repeatable'
-//    ),
     array(
         'label' => 'Gallery',
         'desc'  => '',
         'id'    => $prefix.'gallery',
         'type'  => 'gallery'
     )
-    
-//    array(
-//        'label'=> 'Checkbox Input',
-//        'desc'  => 'A description for the field.',
-//        'id'    => $prefix.'checkbox',
-//        'type'  => 'checkbox'
-//    ),
-//    
 );
 
 function get_all_wp_users(){
@@ -245,17 +231,8 @@ function render_meta_boxes() {
                                 </a>
                             </p>
 
-                            <!-- A hidden input to set and post the chosen image id -->
                             <input class="custom-img-id" name="custom-img-id" type="hidden" value="<?php echo esc_attr( $image_id ); ?>" />
                             <?php
-//                        $image = plugin_dir_url( __FILE__ ) . '/images/default-author-image.png';  
-//                        echo '<span class="custom_default_image" style="display:none">'.$image.'</span>';
-//                        if ($meta) { $image = wp_get_attachment_image_src($meta, 'medium'); $image = $image[0]; }               
-//                        echo    '<input name="'.$field['id'].'" type="hidden" class="custom_upload_image" value="'.$meta.'" />
-//                                    <img src="'.$image.'" class="custom_preview_image" alt="" /><br />
-//                                        <input class="custom_upload_image_button button" type="button" value="Choose Image" />
-//                                        <small> <a href="#" class="custom_clear_image_button">Remove Image</a></small>
-//                                        <br clear="all" /><span class="description">'.$field['desc'].'</span>';
                     break;
                     case 'gallery':
                         // Get WordPress' media upload URL
@@ -266,12 +243,10 @@ function render_meta_boxes() {
                        
                         ?>
 
-                        <!-- Your image container, which can be manipulated with js -->
                         <div class="custom-gallery-container">
                             <input type="text" class="custom-gallery-input" readonly name="<?php echo $field['id']; ?>"value="<?php echo esc_attr($gallery_meta); ?>"/>
                         </div>
 
-                        <!-- Your add & remove image links -->
                         <p class="hide-if-no-js">
                             <a class="setup-gallery <?php if ( $gallery_meta  ) { echo 'hidden'; } ?>" 
                                href="<?php echo $upload_link ?>">
@@ -282,6 +257,7 @@ function render_meta_boxes() {
                                 <?php _e('Clear gallery') ?>
                             </a>
                         </p>
+                        <span class="description"><?php echo $field['desc']; ?></span>
 
                         <?php
                         break;
@@ -295,7 +271,6 @@ function render_meta_boxes() {
 function save_custom_meta($post_id) {
     global $custom_meta_fields, $prefix;
     
-    $first_name = $last_name = false;
     // verify nonce
     if (!isset($_POST['custom_meta_box_nonce']) || !wp_verify_nonce($_POST['custom_meta_box_nonce'], basename(__FILE__))) {
         return $post_id;
@@ -304,6 +279,7 @@ function save_custom_meta($post_id) {
     // check autosave
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
         return $post_id;
+    
     // check permissions
     if ('page' == $_POST['post_type']) {
         if (!current_user_can('edit_page', $post_id))
@@ -329,15 +305,19 @@ add_action('save_post', 'save_custom_meta');
 function apt_update_title( $data , $postarr ) {
     $title = '';
   // do something with the post data
-    if($data['post_type'] == 'apt_author' && isset($_POST['apt_first_name'])) { //apply this only to apt_author and only if first name was submitted
+    if($data['post_type'] == 'apt_author') { //apply this only to apt_author and only if first name was submitted
+        if(!empty($_POST['apt_first_name'])){
         $title = $_POST['apt_first_name'];
+        }
         if(!empty($_POST['apt_last_name'])){
             $title .= ' - ' . $_POST['apt_last_name'];
         }
+        if($title == ''){
+            $title = 'Author - ' . date("d/m/Y G:i:s");
+        }
         $data['post_title'] =  $title ; //Update post title to new title.
     }
-    
-    if ( is_array($data['post_status']) && ! in_array( $data['post_status'], array( 'draft', 'pending', 'auto-draft' ) && $title != '') ) {
+    if ( ! in_array( $data['post_status'], array( 'draft', 'pending', 'auto-draft' ) ) && $title != '' ) {       
         $data['post_name'] = sanitize_title( $title );
     }
     
