@@ -37,9 +37,9 @@ function create_post_type() {
         'public' => true,
         'has_archive' => true,
         'menu_position' => 20,
-        'supports' => array('revisions'),
+        'supports' => array('thumbnail', 'revisions'),
         'rewrite' => array('slug' => 'authors'),
-            )
+        )
     );
 }
 
@@ -137,7 +137,8 @@ $custom_meta_fields = array(
     ),
     array(
         'label' => 'Gallery',
-        'desc'  => '',
+        'desc'  => 'Insert images ids in order you want to display '
+        . 'them. Use "," as separator. Use "Set gallery" link to choose images.',
         'id'    => $prefix.'gallery',
         'type'  => 'gallery'
     )
@@ -244,7 +245,7 @@ function render_meta_boxes() {
                         ?>
 
                         <div class="custom-gallery-container">
-                            <input type="text" class="custom-gallery-input" readonly name="<?php echo $field['id']; ?>"value="<?php echo esc_attr($gallery_meta); ?>"/>
+                            <input type="text" class="custom-gallery-input" name="<?php echo $field['id']; ?>"value="<?php echo esc_attr($gallery_meta); ?>"/>
                         </div>
 
                         <p class="hide-if-no-js">
