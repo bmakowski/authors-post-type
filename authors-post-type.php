@@ -232,7 +232,7 @@ function render_meta_boxes() {
                                 </a>
                             </p>
 
-                            <input class="custom-img-id" name="custom-img-id" type="hidden" value="<?php echo esc_attr( $image_id ); ?>" />
+                            <input class="custom-img-id" name="<?php echo $field['id'];?>" type="hidden" value="<?php echo esc_attr( $image_id ); ?>" />
                             <?php
                     break;
                     case 'gallery':
