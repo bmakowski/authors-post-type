@@ -61,6 +61,7 @@ register_activation_hook(__FILE__, 'my_rewrite_flush');
 function apt_force_template($template) {
     global $post;
 
+//    Uncomment this code when you want to customize archive page
 //    if (is_archive() && $post->post_name = 'authors') {
 //        $template = dirname(__FILE__) . '/templates/archive-apt_author.php';
 //    }
@@ -84,62 +85,61 @@ function apt_author_meta_boxes() {
     );
 }
 
-$prefix = 'apt_';
 $custom_meta_fields = array(
     array(
         'label'=> 'First name',
         'desc'  => '',
-        'id'    => $prefix.'first_name',
+        'id'    => 'apt_first_name',
         'type'  => 'text'
     ),
     array(
         'label'=> 'Last name',
         'desc'  => '',
-        'id'    => $prefix.'last_name',
+        'id'    => 'apt_last_name',
         'type'  => 'text'
     ),
     array(
         'label'=> 'Biography',
         'desc'  => '',
-        'id'    => $prefix.'biography',
+        'id'    => 'apt_biography',
         'type'  => 'textarea'
     ),
     array(
         'label'=> 'Facebook URL',
         'desc'  => '',
-        'id'    => $prefix.'facebook',
+        'id'    => 'apt_facebook',
         'type'  => 'text'
     ),
     array(
         'label'=> 'Linkedin URL',
         'desc'  => '',
-        'id'    => $prefix.'linkedin',
+        'id'    => 'apt_linkedin',
         'type'  => 'text'
     ),
     array(
         'label'=> 'Google+ URL',
         'desc'  => '',
-        'id'    => $prefix.'google',
+        'id'    => 'apt_google',
         'type'  => 'text'
     ),
     array(
         'label'=> 'WordPress User',
         'desc'  => '',
-        'id'    => $prefix.'wordpress_user',
+        'id'    => 'apt_wordpress_user',
         'type'  => 'select',
         'options' => get_all_wp_users()
     ),
     array(
         'label'  => 'Author’s image',
         'desc'  => '',
-        'id'    => $prefix.'authors_image',
+        'id'    => 'apt_authors_image',
         'type'  => 'image'
     ),
     array(
         'label' => 'Gallery',
         'desc'  => 'Insert images ids in order you want to display '
         . 'them. Use "," as separator. Use "Set gallery" link to choose images.',
-        'id'    => $prefix.'gallery',
+        'id'    => 'apt_gallery',
         'type'  => 'gallery'
     )
 );
@@ -270,7 +270,7 @@ function render_meta_boxes() {
 
 // Save the Data
 function save_custom_meta($post_id) {
-    global $custom_meta_fields, $prefix;
+    global $custom_meta_fields;
     
     // verify nonce
     if (!isset($_POST['custom_meta_box_nonce']) || !wp_verify_nonce($_POST['custom_meta_box_nonce'], basename(__FILE__))) {
@@ -305,21 +305,21 @@ add_action('save_post', 'save_custom_meta');
 
 function apt_update_title( $data , $postarr ) {
     $title = '';
-  // do something with the post data
-    if($data['post_type'] == 'apt_author') { //apply this only to apt_author and only if first name was submitted
-        if(!empty($_POST['apt_first_name'])){
-        $title = $_POST['apt_first_name'];
+    if ( ! in_array( $data['post_status'], array( 'draft', 'pending', 'auto-draft', 'trash' ) ) && $title != '' ) {       
+        if($data['post_type'] == 'apt_author') { //apply this only to apt_author
+            if(!empty($_POST['apt_first_name'])){ //apt_first_name is present
+                $title = $_POST['apt_first_name'];
+            }
+            if(!empty($_POST['apt_last_name'])){ //apt_last_name is present
+                $title .= ' - ' . $_POST['apt_last_name'];
+            }
+            if($title == ''){ //no apt_first_name and apt_last_name is present, so generate title
+                $title = 'Author - ' . date("d/m/Y G:i:s");
+            }
+            $data['post_title'] =  $title ; //Update post title to new title.
         }
-        if(!empty($_POST['apt_last_name'])){
-            $title .= ' - ' . $_POST['apt_last_name'];
-        }
-        if($title == ''){
-            $title = 'Author - ' . date("d/m/Y G:i:s");
-        }
-        $data['post_title'] =  $title ; //Update post title to new title.
-    }
-    if ( ! in_array( $data['post_status'], array( 'draft', 'pending', 'auto-draft' ) ) && $title != '' ) {       
-        $data['post_name'] = sanitize_title( $title );
+    
+        $data['post_name'] = sanitize_title( $title ); //Update post slug to new slug.
     }
     
     return $data; // Returns modified data.
