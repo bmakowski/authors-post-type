@@ -67,7 +67,7 @@ get_header(); ?>
                     'author'        =>  $user_id,
                     'orderby'       =>  'post_date',
                     'order'         =>  'ASC',
-                    'posts_per_page' => 1
+                    'posts_per_page' => -1
                     );
                     $posts = get_posts( $args );
                     if(count($posts) > 0){
