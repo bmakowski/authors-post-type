@@ -305,21 +305,21 @@ add_action('save_post', 'save_custom_meta');
 
 function apt_update_title( $data , $postarr ) {
     $title = '';
-    if ( ! in_array( $data['post_status'], array( 'draft', 'pending', 'auto-draft', 'trash' ) ) && $title != '' ) {       
-        if($data['post_type'] == 'apt_author') { //apply this only to apt_author
-            if(!empty($_POST['apt_first_name'])){ //apt_first_name is present
-                $title = $_POST['apt_first_name'];
-            }
-            if(!empty($_POST['apt_last_name'])){ //apt_last_name is present
-                $title .= ' - ' . $_POST['apt_last_name'];
-            }
-            if($title == ''){ //no apt_first_name and apt_last_name is present, so generate title
-                $title = 'Author - ' . date("d/m/Y G:i:s");
-            }
-            $data['post_title'] =  $title ; //Update post title to new title.
+
+    if($data['post_type'] == 'apt_author') { //apply this only to apt_author and only if first name was submitted
+        if(!empty($_POST['apt_first_name'])){
+        $title = $_POST['apt_first_name'];
         }
-    
-        $data['post_name'] = sanitize_title( $title ); //Update post slug to new slug.
+        if(!empty($_POST['apt_last_name'])){
+            $title .= ' - ' . $_POST['apt_last_name'];
+        }
+        if($title == ''){
+            $title = 'Author - ' . date("d/m/Y G:i:s");
+        }
+        $data['post_title'] =  $title ; //Update post title to new title.
+    }
+    if ( ! in_array( $data['post_status'], array( 'draft', 'pending', 'auto-draft', 'trash' ) ) && $title != '' ) {       
+        $data['post_name'] = sanitize_title( $title );
     }
     
     return $data; // Returns modified data.
