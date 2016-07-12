@@ -1,5 +1,9 @@
 jQuery(function ($) {
     // Set all variables to be used in scope
+
+    jQuery("#post").validate({
+       
+    });
     
     authors_image();
     authors_gallery();

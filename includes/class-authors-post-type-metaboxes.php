@@ -16,13 +16,15 @@ class Authors_Post_Type_Metaboxes {
                     'label'=> 'First name',
                     'desc'  => '',
                     'id'    => 'apt_first_name',
-                    'type'  => 'text'
+                    'type'  => 'text',
+                    'required' => true
                 ),
                 array(
                     'label'=> 'Last name',
                     'desc'  => '',
                     'id'    => 'apt_last_name',
-                    'type'  => 'text'
+                    'type'  => 'text',
+                    'required' => true
                 ),
                 array(
                     'label'=> 'Biography',
@@ -34,19 +36,19 @@ class Authors_Post_Type_Metaboxes {
                     'label'=> 'Facebook URL',
                     'desc'  => '',
                     'id'    => 'apt_facebook',
-                    'type'  => 'text'
+                    'type'  => 'url'
                 ),
                 array(
                     'label'=> 'Linkedin URL',
                     'desc'  => '',
                     'id'    => 'apt_linkedin',
-                    'type'  => 'text'
+                    'type'  => 'url'
                 ),
                 array(
                     'label'=> 'Google+ URL',
                     'desc'  => '',
                     'id'    => 'apt_google',
-                    'type'  => 'text'
+                    'type'  => 'url'
                 ),
                 array(
                     'label'=> 'WordPress User',
@@ -126,9 +128,17 @@ class Authors_Post_Type_Metaboxes {
                         switch($field['type']) {
                             // case items will go here
                             case 'text':
-                                echo '<input type="text" name="'.$field['id'].'" id="'.$field['id'].'" value="'.$meta.'" size="30" />
+                                echo '<input type="text" name="'.$field['id'].'" id="'.$field['id'].'" value="'.$meta.'" size="30"'
+                                    . ((isset($field['required']) && $field['required']) ? ' required="required"' : '')
+                                    . '/>
                                     <br /><span class="description">'.$field['desc'].'</span>';
                             break;
+                            case 'url':
+                                echo '<input type="url" name="'.$field['id'].'" id="'.$field['id'].'" value="'.$meta.'" size="30"'
+                                    . ((isset($field['required']) && $field['required']) ? ' required="required"' : '')
+                                    . '/>
+                                    <br /><span class="description">'.$field['desc'].'</span>';
+                                break;
                             case 'textarea':
                                 echo '<textarea name="'.$field['id'].'" id="'.$field['id'].'" cols="60" rows="4">'.$meta.'</textarea>
                                     <br /><span class="description">'.$field['desc'].'</span>';
@@ -219,11 +229,13 @@ class Authors_Post_Type_Metaboxes {
         function save_meta_boxes($post_id) {
             global $post;
 
+            $custom_meta_fields = self::$apt_author_meta_fields;
+            
             // verify nonce
             if (!isset($_POST['custom_meta_box_nonce']) || !wp_verify_nonce($_POST['custom_meta_box_nonce'], basename(__FILE__))) {
                 return $post_id;
             }
-
+            
             // Check Autosave
             if ( (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || ( defined('DOING_AJAX') && DOING_AJAX) || isset($_REQUEST['bulk_edit']) ) {
                     return $post_id;
@@ -241,14 +253,9 @@ class Authors_Post_Type_Metaboxes {
 
             // loop through fields and save the data
             foreach ($custom_meta_fields as $field) {
-                $old = get_post_meta($post_id, $field['id'], true);
-                $new = $_POST[$field['id']];
-                if ($new && $new != $old) {
-                    update_post_meta($post_id, $field['id'], $new);
-                } elseif ('' == $new && $old) {
-                    delete_post_meta($post_id, $field['id'], $old);
-                }
-            } 
+                $value = $_POST[$field['id']];
+                update_post_meta($post_id, $field['id'], $value);
+            }
         }
 
 }

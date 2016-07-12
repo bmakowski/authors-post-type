@@ -14,11 +14,14 @@ class Authors_Post_Type_Admin {
                 add_action( 'admin_enqueue_scripts', array( $this, 'apt_enqueue_scripts' ) );
                 
                 //Filter post title
-                add_filter( 'wp_insert_post_data', 'apt_update_title', '99', 2 );
+                add_filter( 'wp_insert_post_data', array($this, 'apt_update_title'), '99', 2 );
 
 	}
 
 	public function apt_enqueue_scripts(){
+            wp_enqueue_style( 'apt-styles', APT_PLUGIN_URL . '/css/apt-styles.css');
+            
+            wp_enqueue_script('jquery-validate', APT_PLUGIN_URL . 'js/jquery.validate.min.js', array('jquery'));
             wp_enqueue_script('custom-js', APT_PLUGIN_URL . 'js/custom-js.js', array('jquery'));
         }
         
@@ -31,9 +34,6 @@ class Authors_Post_Type_Admin {
                 }
                 if(!empty($_POST['apt_last_name'])){
                     $title .= ' - ' . $_POST['apt_last_name'];
-                }
-                if($title == ''){
-                    $title = 'Author - ' . date("d/m/Y G:i:s");
                 }
                 $data['post_title'] =  $title ; //Update post title to new title.
             }
