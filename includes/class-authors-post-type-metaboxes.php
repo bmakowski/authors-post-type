@@ -157,7 +157,7 @@ class Authors_Post_Type_Metaboxes {
                                     $image_id = get_post_meta( $post->ID, $field['id'], true );
 
                                     // Get the image src
-                                    $image_id_src = wp_get_attachment_image_src( $image_id, 'full' );
+                                    $image_id_src = wp_get_attachment_image_src( $image_id, 'medium' );
 
                                     // For convenience, see if the array is valid
                                     $you_have_img = is_array( $image_id_src );
@@ -252,7 +252,21 @@ class Authors_Post_Type_Metaboxes {
 
             // loop through fields and save the data
             foreach ($custom_meta_fields as $field) {
-                $value = $_POST[$field['id']];
+                switch($field['type']) {
+                    case 'text':
+                        $value = sanitize_text_field($_POST[$field['id']]);
+                        break;
+                    case 'textarea':
+                        $value = esc_textarea($_POST[$field['id']]);
+                        break;
+                    case 'url':
+                        $value = esc_url($_POST[$field['id']]);
+                        break;
+                    default:
+                        $value = $_POST[$field['id']];
+                        break;
+                }
+                
                 update_post_meta($post_id, $field['id'], $value);
             }
         }

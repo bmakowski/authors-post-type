@@ -52,7 +52,7 @@ jQuery(function ($) {
                 var attachment = frame.state().get('selection').first().toJSON();
                 
                 // Send the attachment URL to our custom image input field.
-                imgContainer.append('<img src="' + attachment.url + '" alt="" style="max-width:100%;"/>');
+                imgContainer.append('<img src="' + attachment.sizes.medium.url + '" alt="" style="max-width:100%;"/>');
 
                 // Send the attachment id to our hidden input
                 imgIdInput.val(attachment.id);
