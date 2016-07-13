@@ -65,8 +65,8 @@ get_header(); ?>
                 if($user_id){
                     $args = array(
                     'author'        =>  $user_id,
-                    'orderby'       =>  'post_date',
-                    'order'         =>  'ASC',
+                    'orderby'       =>  'date',
+                    'order'         =>  'desc',
                     'posts_per_page' => -1
                     );
                     $posts = get_posts( $args );
