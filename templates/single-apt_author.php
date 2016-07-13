@@ -53,7 +53,7 @@ get_header(); ?>
                     <td><?php 
                             $gallery_ids = get_post_meta($post->ID, 'apt_gallery', true );
                             if(!empty($gallery_ids)){
-                                $gallery_shortcode = '[gallery ids="' . $gallery_ids . '"]';
+                                $gallery_shortcode = '[gallery ids="' . implode( ",", $gallery_ids )  . '"]';
                                 echo do_shortcode( $gallery_shortcode );
                             }
                         ?> 
