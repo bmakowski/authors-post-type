@@ -1,12 +1,19 @@
 jQuery(function ($) {
     // Set all variables to be used in scope
 
-    jQuery("#post").validate({
+    $("#post").validate({
        
     });
     
+    $(".remove-gallery-image").bind( "click", function(event) {
+        event.preventDefault();
+        $(this).parent('.gallery-input').remove();
+    });
+    
+    
     authors_image();
     authors_gallery();
+    
     
     function authors_image(){
     
@@ -43,7 +50,7 @@ jQuery(function ($) {
 
                 // Get media attachment details from the frame state
                 var attachment = frame.state().get('selection').first().toJSON();
-
+                
                 // Send the attachment URL to our custom image input field.
                 imgContainer.append('<img src="' + attachment.url + '" alt="" style="max-width:100%;"/>');
 
@@ -83,13 +90,14 @@ jQuery(function ($) {
     }
     
     function authors_gallery(){
-    
+
         var frame,
                 metaBox = $('#apt_author_fields.postbox'), // Your meta box id here
-                addImgLink = metaBox.find('.setup-gallery'),
-                delImgLink = metaBox.find('.clear-gallery'),
+                addImgLink = metaBox.find('.add-galery-image'),
+                //delImgLink = metaBox.find('.remove-gallery-image'),
                 //imgContainer = metaBox.find('.custom-img-container'),
-                imgIdInput = metaBox.find('.custom-gallery-input');
+                inputContainer = addImgLink.parent('.custom-gallery-container');
+                //imgIdInput = inputContainer.find('.custom-gallery-container');
 
         // ADD IMAGE LINK
         addImgLink.on('click', function (event) {
@@ -108,53 +116,29 @@ jQuery(function ($) {
                 button: {
                     text: 'Use this media'
                 },
-                multiple: true  // Set to true to allow multiple files to be selected
+                multiple: false  // Set to true to allow multiple files to be selected
             });
 
 
             // When an image is selected in the media frame...
             frame.on('select', function () {
-                var input_ids = [];
-                // Get media attachment details from the frame state
-                var selection = frame.state().get('selection').toJSON();
 
-                $.each(selection, function(index, value){
-                    input_ids.push(value.id)
-                });
-
-                // Send the attachment id to our hidden input
-                imgIdInput.val(input_ids.join(','));
-
-                // Hide the add image link
-                addImgLink.addClass('hidden');
-
+                var attachment = frame.state().get('selection').first().toJSON();
+                //console.log(attachment);
+                // Send the attachment URL to our custom image input field.
+                addImgLink.before('<div class="gallery-input"><input class="custom-gallery-input" type="hidden" name="apt_gallery[]" value="' + attachment.id + '"/><img src="' + attachment.sizes.thumbnail.url + '" alt=""/><br/><a class="remove-gallery-image" href="#">Remove Image</a><br/><br/></div>');
+           
                 // Unhide the remove image link
-                delImgLink.removeClass('hidden');
+                $(".remove-gallery-image").bind( "click", function(event) {
+                    event.preventDefault();
+                    $(this).parent('.gallery-input').remove();
+                });
             });
 
             // Finally, open the modal on click
             frame.open();
         });
 
-
-        // DELETE IMAGE LINK
-        delImgLink.on('click', function (event) {
-
-            event.preventDefault();
-
-            // Clear out the preview image
-            //imgContainer.html('');
-
-            // Un-hide the add image link
-            addImgLink.removeClass('hidden');
-
-            // Hide the delete image link
-            delImgLink.addClass('hidden');
-
-            // Delete the image id from the hidden input
-            imgIdInput.val('');
-
-        });
     }
 
 });

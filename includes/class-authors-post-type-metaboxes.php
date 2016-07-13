@@ -65,8 +65,7 @@ class Authors_Post_Type_Metaboxes {
                 ),
                 array(
                     'label' => 'Gallery',
-                    'desc'  => 'Insert images ids in order you want to display '
-                    . 'them. Use "," as separator. Use "Set gallery" link to choose images.',
+                    'desc'  => '',
                     'id'    => 'apt_gallery',
                     'type'  => 'gallery'
                 )
@@ -191,24 +190,24 @@ class Authors_Post_Type_Metaboxes {
                                 $upload_link = esc_url( get_upload_iframe_src( 'image', $post->ID ) );
 
                                 // See if there's a media id already saved as post meta
-                                $gallery_meta = get_post_meta( $post->ID, $field['id'], true );
-
+                                $gallery_meta = get_post_meta( $post->ID, $field['id'], true);
                                 ?>
 
-                                <div class="custom-gallery-container">
-                                    <input type="text" class="custom-gallery-input" name="<?php echo $field['id']; ?>"value="<?php echo esc_attr($gallery_meta); ?>"/>
+                                <div class="custom-gallery-container hide-if-no-js">
+                                    <?php
+                                        if($gallery_meta){
+                                            foreach ($gallery_meta as $gallery_image){
+                                                $gallery_image_src = wp_get_attachment_image_src( (int) $gallery_image, 'thumbnail' );
+                                    ?>        
+                                            <div class="gallery-input">
+                                                <input class="custom-gallery-input" type="hidden" name="apt_gallery[]" value="<?php echo $gallery_image; ?>"/><img src="<?php echo $gallery_image_src[0]; ?>" alt=""/><br/><a class="remove-gallery-image" href="#">Remove Image</a><br/><br/></div>
+                                    <?php        
+                                            }
+                                        }
+                                    ?>
+                                    <a class="add-galery-image" href="#">Add Image</a>
                                 </div>
 
-                                <p class="hide-if-no-js">
-                                    <a class="setup-gallery <?php if ( $gallery_meta  ) { echo 'hidden'; } ?>" 
-                                       href="<?php echo $upload_link ?>">
-                                        <?php _e('Set gallery') ?>
-                                    </a>
-                                    <a class="clear-gallery <?php if ( ! $gallery_meta  ) { echo 'hidden'; } ?>" 
-                                      href="#">
-                                        <?php _e('Clear gallery') ?>
-                                    </a>
-                                </p>
                                 <span class="description"><?php echo $field['desc']; ?></span>
 
                                 <?php
@@ -228,7 +227,7 @@ class Authors_Post_Type_Metaboxes {
         
         function save_meta_boxes($post_id) {
             global $post;
-
+            
             $custom_meta_fields = self::$apt_author_meta_fields;
             
             // verify nonce
