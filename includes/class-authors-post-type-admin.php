@@ -27,15 +27,17 @@ class Authors_Post_Type_Admin {
         
         public function apt_update_title( $data , $postarr ) {
             $title = '';
-
+            
             if($data['post_type'] == 'apt_author') { //apply this only to apt_author and only if first name was submitted
                 if(!empty($_POST['apt_first_name'])){
-                $title = $_POST['apt_first_name'];
+                    $title = $_POST['apt_first_name'];
                 }
                 if(!empty($_POST['apt_last_name'])){
                     $title .= ' - ' . $_POST['apt_last_name'];
                 }
-                $data['post_title'] =  $title ; //Update post title to new title.
+                if($title != ''){
+                    $data['post_title'] =  $title ; //Update post title to new title.
+                }
             }
             if ( ! in_array( $data['post_status'], array( 'draft', 'pending', 'auto-draft', 'trash' ) ) && $title != '' ) {       
                 $data['post_name'] = sanitize_title( $title );
